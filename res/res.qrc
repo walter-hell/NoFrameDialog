@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/qss">
+        <file>main_dialog.qss</file>
+    </qresource>
+    <qresource prefix="/images">
+        <file>close.png</file>
+        <file>max.png</file>
+        <file>min.png</file>
+        <file>restore.png</file>
+        <file>app_icon.png</file>
+    </qresource>
+</RCC>
