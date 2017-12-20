@@ -14,18 +14,13 @@
 #include <QDebug>
 #include <QIcon>
 
-#ifdef Q_OS_WIN
-#include <qt_windows.h>
-#include <windowsx.h>
-#endif
-
 #include "main_dialog.h"
-#include "title_bar.h"
+#include "./dialog_plug/title_bar.h"
+#include "./dialog_plug/frameless_helper.h"
 
 noframe::MainDialog::
 MainDialog(QWidget *parent) :
-  QDialog(parent),
-  _borderWidth(5)
+  QDialog(parent)
 {
   init();
 }
@@ -56,6 +51,14 @@ void noframe::MainDialog::init()
   setLayout(layout);
 
   loadStyleSheet();
+
+  FramelessHelper *pHelper = new FramelessHelper(this);
+  pHelper->activateOn(this);  //激活当前窗体
+  pHelper->setTitleHeight(titleBar->height());  //设置窗体的标题栏高度
+  pHelper->setWidgetMovable(true);  //设置窗体可移动
+  pHelper->setWidgetResizable(true);  //设置窗体可缩放
+  pHelper->setRubberBandOnMove(true);  //设置橡皮筋效果-可移动
+  pHelper->setRubberBandOnResize(true);  //设置橡皮筋效果-可缩放
 }
 
 

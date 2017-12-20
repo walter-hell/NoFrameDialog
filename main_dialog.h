@@ -28,8 +28,6 @@ private:
   void init();
   void loadStyleSheet();
 
-private:
-  unsigned int _borderWidth;
 };
 
 }

@@ -26,14 +26,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         main_dialog.cpp \
-    title_bar.cpp
+        dialog_plug/title_bar.cpp \
+    dialog_plug/frameless_helper.cpp
 
 HEADERS += \
         main_dialog.h \
-    title_bar.h
-
-FORMS += \
-        main_dialog.ui
+        dialog_plug/title_bar.h \
+    dialog_plug/frameless_helper.h
 
 RESOURCES += \
     res/res.qrc

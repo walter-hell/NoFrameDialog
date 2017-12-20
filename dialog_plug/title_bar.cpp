@@ -16,16 +16,13 @@
 #include <QMouseEvent>
 #include <QEvent>
 #include <QApplication>
-
+#include <QDebug>
 #include "title_bar.h"
-#ifdef Q_OS_WIN
-#pragma comment(lib, "user32.lib")
-#include <qt_windows.h>
-#endif
 
 noframe::TitleBar::
 TitleBar(QWidget *parent) :
-  QWidget(parent)
+  QWidget(parent),
+  _pressed(false)
 {
   init();
 }
@@ -47,23 +44,29 @@ mouseDoubleClickEvent(QMouseEvent* event)
 void noframe::TitleBar::
 mousePressEvent(QMouseEvent* event)
 {
-//#ifdef Q_OS_WIN
-//  QWidget *pWindow = this->window();
-//  if (pWindow->isTopLevel())
-//  {
-//    SendMessage(HWND(pWindow->winId()), WM_SYSCOMMAND, SC_MOVE + HTCAPTION, 0);
-//  }
-//  event->ignore();
-
-//#else
-//#endif
+  event->ignore();
   QWidget* wind = this->window();
   if(wind->isTopLevel())
   {
+    qDebug() << event->pos();
     if(event->button() == Qt::LeftButton)
     {
-      _pressed = true;
-      _pressedPoint = event->pos();
+      //获取this控件所在的窗口
+      QWidget *w = this->window();
+      //将this控件下的坐标转换到窗口坐标
+      QPoint p = this->mapTo(w, event->pos());
+      if(p.x() <= 5 || p.y() <= 5 ||
+         w->width() - p.x() <= 5 ||
+         w->height() - p.y() <= 5)
+      {
+        return;
+      }
+      else
+      {
+        _pressed = true;
+        _pressedPoint = event->pos();
+        event->accept();
+      }
     }
   }
 }
@@ -76,6 +79,7 @@ mouseMoveEvent(QMouseEvent* event)
     QWidget* wind = this->window();
     wind->move(wind->pos() + event->pos() - _pressedPoint);
   }
+  event->ignore();
 }
 
 void noframe::TitleBar::
@@ -85,6 +89,7 @@ mouseReleaseEvent(QMouseEvent* event)
   {
     _pressed = false;
   }
+  event->ignore();
 }
 
 bool noframe::TitleBar::
@@ -114,13 +119,13 @@ eventFilter(QObject* watched, QEvent* event)
         if(max)
         {
           _maxBtn->setToolTip(QString::fromUtf8("restore"));
-//          _maxBtn->setProperty("maxProperty", "restore");
+          //          _maxBtn->setProperty("maxProperty", "restore");
           _maxBtn->setIcon(QIcon(":/images/restore.png"));
         }
         else
         {
           _maxBtn->setToolTip(QString::fromUtf8("maximize"));
-//          _maxBtn->setProperty("maxProperty", "max");
+          //          _maxBtn->setProperty("maxProperty", "max");
           _maxBtn->setIcon(QIcon(":/images/max.png"));
         }
         _maxBtn->setStyle(QApplication::style());
@@ -161,7 +166,7 @@ btnsClicked(QAbstractButton*btn )
 void noframe::TitleBar::init()
 {
   _icon = new QLabel(this);
-  _icon->setFixedSize(20,20);
+  _icon->setFixedSize(23,23);
   _icon->setScaledContents(true);
 
   _title = new QLabel(this);
@@ -169,22 +174,25 @@ void noframe::TitleBar::init()
   _title->setObjectName(QString::fromUtf8("title_label"));
 
   _closeBtn = new QToolButton(this);
-  _closeBtn->setFixedSize(22,22);
+  _closeBtn->setFixedSize(25,25);
   _closeBtn->setObjectName(QString::fromUtf8("close_btn"));
   _closeBtn->setToolTip(QString::fromUtf8("close"));
   _closeBtn->setIcon(QIcon(":/images/close.png"));
+  _closeBtn->setIconSize(QSize(25,25));
 
   _minBtn = new QToolButton(this);
-  _minBtn->setFixedSize(22,22);
+  _minBtn->setFixedSize(25,25);
   _minBtn->setObjectName(QString::fromUtf8("min_btn"));
   _minBtn->setToolTip(QString::fromUtf8("minimize"));
   _minBtn->setIcon(QIcon(":/images/min.png"));
+  _minBtn->setIconSize(QSize(25,25));
 
   _maxBtn = new QToolButton(this);
-  _maxBtn->setFixedSize(22,22);
+  _maxBtn->setFixedSize(25,25);
   _maxBtn->setObjectName(QString::fromUtf8("max_btn"));
   _maxBtn->setToolTip(QString::fromUtf8("maximize"));
   _maxBtn->setIcon(QIcon(":/images/max.png"));
+  _maxBtn->setIconSize(QSize(25,25));
 
   QButtonGroup *btns = new QButtonGroup(this);
   btns->addButton(_minBtn);
@@ -200,7 +208,8 @@ void noframe::TitleBar::init()
   layout->addWidget(_maxBtn);
   layout->addWidget(_closeBtn);
   layout->addSpacing(0);
-  layout->setContentsMargins(5, 0, 5, 0);
+  layout->setContentsMargins(5, 5, 5, 0);
+  layout->setSpacing(0);
 
   setLayout(layout);
 
